@@ -1,6 +1,8 @@
 import { Container, Title, Text, Button, Stack, Group } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
 
 export function Home() {
+  const navigate = useNavigate();
   return (
     <Container py={100}>
       <Stack gap="xl">
@@ -15,8 +17,10 @@ export function Home() {
           delivered directly to your door in Dhaka.
         </Text>
         <Group>
-          <Button size="lg">Order now</Button>
-          <Button size="lg" variant="outline">
+          <Button size="lg" onClick={() => navigate("/menu")}>
+            Order now
+          </Button>
+          <Button size="lg" variant="outline" onClick={() => navigate("/menu")}>
             Browse Menu
           </Button>
         </Group>

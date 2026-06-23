@@ -6,7 +6,7 @@ const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
 const router = express.Router();
 
 // Customer functions
-// receive items only from the client
+// receive only items from the client
 router.post("/", verifyToken, async (req, res) => {
   try {
     const { items } = req.body;
