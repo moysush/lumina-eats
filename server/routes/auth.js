@@ -51,7 +51,7 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign(userForToken, secret);
 
-    res.status(200).json({ token, userForToken });
+    res.status(200).json({ token, user: userForToken });
   } catch (err) {
     (console.error("Login error:", err),
       res.status(500).json({ message: "Server error during login" }));

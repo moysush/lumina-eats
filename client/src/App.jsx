@@ -1,26 +1,31 @@
-import { Container, Title, Text, Button, Stack, Group } from "@mantine/core";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Notifications } from "@mantine/notifications";
+import { Home } from "./pages/Home";
+import Layout from "./Layout";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import AdminDashboard from "./pages/AdminDashboard";
+
 function App() {
   return (
-    <Container py={100}>
-      <Stack gap="xl">
-        <Title fw={900}>
-          Dinner, delivered in{" "}
-          <Text span c="luminaYellow.6">
-            minutes.
-          </Text>
-        </Title>
-        <Text size="lg" c="dimmed" maw={600}>
-          The best local restaurants, curated for your taste. Fresh, hot, and
-          delivered directly to your door in Dhaka.
-        </Text>
-        <Group>
-          <Button size="lg">Order now</Button>
-          <Button size="lg" variant="outline">
-            Browse Menu
-          </Button>
-        </Group>
-      </Stack>
-    </Container>
+    <Layout>
+      <BrowserRouter>
+        <Notifications />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* <Route index element={<Menu />} /> */}
+          {/* <Route path="cart" element={<Cart />} /> */}
+
+          <Route path="/admin" element={<AdminDashboard />} />
+          {/* <Route path="/admin/orders" element={<ManageItems />} /> */}
+
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </BrowserRouter>
+    </Layout>
   );
 }
 

@@ -1,10 +1,11 @@
 const express = require("express");
 const FoodItem = require("../models/FoodItem");
 const Order = require("../models/Order");
-const { verifyToken } = require("../middleware/authMiddleware");
+const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+// Customer functions
 // receive items only from the client
 router.post("/", verifyToken, async (req, res) => {
   try {
@@ -59,6 +60,41 @@ router.get("/my-orders", verifyToken, async (req, res) => {
   } catch (err) {
     console.error("Error fetching orders: ", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Admin functions
+router.get("/", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("items.foodItem", "name price")
+      .sort({ createdAt: -1 }); // Newest orders first
+
+    res.json(orders);
+  } catch (err) {
+    console.error("Error fetching all orders: ", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.patch("/:id", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { orderStatus } = req.body;
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      { orderStatus },
+      { returnDocument: true, runValidators: true },
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.json(updatedOrder);
+  } catch (err) {
+    console.error("Error updating order: ", err);
+    res.status(500).json({ message: "Server error updating order" });
   }
 });
 
