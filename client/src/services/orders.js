@@ -6,7 +6,7 @@ export const getAllOrders = async () => {
 };
 
 export const createOrder = async (orderData) => {
-  const res = await api.create("/orders", { orderData });
+  const res = await api.post("/orders", orderData);
   return res.data;
 };
 
@@ -14,4 +14,3 @@ export const updateOrderStatus = async (id, orderStatus) => {
   const res = await api.patch(`/orders/${id}`, { orderStatus });
   return res.data;
 };
-

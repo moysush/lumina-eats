@@ -45,7 +45,6 @@ export function Cart() {
       };
 
       const response = await createOrder(orderPayload);
-      console.log("Order created:", response);
 
       setCart([]);
 
@@ -62,12 +61,7 @@ export function Cart() {
   return (
     <Container size="sm" py="xl">
       <Group mb="xl">
-        <Button
-          variant="subtle"
-          //   color="gray"
-          onClick={() => navigate("/menu")}
-          p={5}
-        >
+        <Button variant="subtle" onClick={() => navigate("/menu")} p={5}>
           ← Back to Menu
         </Button>
       </Group>
