@@ -13,10 +13,12 @@ import {
 import { useLocalStorage } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { createOrder } from "../services/orders";
+import { generatePaymentHash } from "../services/payment";
 
 export function Cart() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const merchantId = import.meta.env.VITE_PAYHERE_MERCHANT_ID;
 
   const [cart, setCart] = useLocalStorage({
     key: "lumina-cart",
@@ -37,22 +39,57 @@ export function Cart() {
     setIsSubmitting(true);
 
     try {
-      const orderPayload = {
+      // 1. Save to database
+      const dbOrder = await createOrder({
         items: cart.map((item) => ({
           foodItemId: item._id,
           quantity: item.quantity,
         })),
+      });
+
+      const generatedHash = await generatePaymentHash(
+        dbOrder._id,
+        cartTotal,
+        "LKR",
+      );
+
+      console.log("Sending to PayHere:", {
+        merchant_id: merchantId, // IF THIS IS UNDEFINED, IT WILL FAIL
+        order_id: dbOrder._id,
+        amount: cartTotal.toFixed(2),
+        currency: "LKR",
+        hash: generatedHash,
+      });
+
+      window.payhere.onCompleted = () => {
+        setCart([]);
+        navigate("/menu");
       };
+      window.payhere.onDismissed = () => alert("Payment cancelled.");
+      window.payhere.onError = (error) => alert("Payment failed: " + error);
 
-      const response = await createOrder(orderPayload);
-
-      setCart([]);
-
-      // TODO: We will trigger the PayHere Sandbox redirect here in the next step
-      alert("Order placed successfully! Redirecting to payment...");
+      window.payhere.startPayment({
+        sandbox: true,
+        merchant_id: "1236490",
+        return_url: "http://localhost:5173/menu",
+        cancel_url: "http://localhost:5173/cart",
+        notify_url:
+          "https://prorate-pluck-moonwalk.ngrok-free.dev/api/payment/webhook",
+        order_id: dbOrder._id,
+        items: "LuminaEats Order",
+        amount: cartTotal.toFixed(2),
+        currency: "LKR",
+        hash: generatedHash,
+        first_name: "John",
+        last_name: "Doe",
+        email: "test@test.com",
+        phone: "01700000000",
+        address: "Dhaka",
+        city: "Dhaka",
+        country: "Bangladesh",
+      });
     } catch (error) {
-      console.error("Checkout failed:", error);
-      alert("Failed to place order. Please try again.");
+      alert("Failed to place order.");
     } finally {
       setIsSubmitting(false);
     }

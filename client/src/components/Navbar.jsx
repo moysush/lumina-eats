@@ -14,6 +14,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 const links = [
   { link: "/menu", label: "Menu" },
   { link: "/cart", label: "Cart" },
+  { link: "/login", label: "Login" },
+  { link: "/register", label: "Register" },
 ];
 
 export function Navbar() {
