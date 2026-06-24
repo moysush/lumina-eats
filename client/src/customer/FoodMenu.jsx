@@ -65,7 +65,7 @@ const FoodMenu = () => {
   }
 
   return (
-    <Container size="lg" py="xl">
+    <Container>
       <Title order={2} mb="xl" ta="center">
         Our Menu
       </Title>

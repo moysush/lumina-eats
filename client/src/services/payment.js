@@ -3,7 +3,7 @@ import api from "./api";
 export const generatePaymentHash = async (
   orderId,
   amount,
-  currency = "LKR",
+  currency = "USD",
 ) => {
   try {
     const res = await api.post("/payment/hash", {
@@ -12,7 +12,7 @@ export const generatePaymentHash = async (
       currency: currency,
     });
 
-    console.log(res.data.hash)
+    console.log(res.data.hash);
     return res.data.hash;
   } catch (error) {
     console.error("Payment Service Error: ", err);

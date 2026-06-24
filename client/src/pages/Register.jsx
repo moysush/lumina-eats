@@ -39,7 +39,7 @@ export default function Register() {
   };
 
   return (
-    <Container w={420}>
+    <Container size="xs">
       <Title align="center">Create Account</Title>
       <Paper withBorder p={30} mt={30}>
         <form onSubmit={form.onSubmit(handleSubmit)}>

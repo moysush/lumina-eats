@@ -10,6 +10,7 @@ import { useForm } from "@mantine/form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/auth";
+import { useLocalStorage } from "@mantine/hooks";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -19,11 +20,15 @@ export default function Login() {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
     },
   });
+  const [, setUser] = useLocalStorage({
+    key: "user",
+    defaultValue: null,
+  });
 
   const handleSubmit = async (values) => {
     try {
       const data = await login(values);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
 
       // Redirect based on role
       if (data.user.role === "admin") navigate("/admin");
@@ -34,7 +39,7 @@ export default function Login() {
   };
 
   return (
-    <Container w={420}>
+    <Container size="xs">
       <Title ta="center">Welcome back!</Title>
       <Paper withBorder p={30} mt={30}>
         <form onSubmit={form.onSubmit(handleSubmit)}>

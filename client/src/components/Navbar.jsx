@@ -14,21 +14,32 @@ import { useNavigate, useLocation } from "react-router-dom";
 const links = [
   { link: "/menu", label: "Menu" },
   { link: "/cart", label: "Cart" },
-  { link: "/login", label: "Login" },
-  { link: "/register", label: "Register" },
+  { link: "/logout", label: "Logout" },
 ];
 
-export function Navbar() {
+const Navbar = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [user] = useLocalStorage({
+    key: "user",
+    defaultValue: null,
+  });
   const [cart] = useLocalStorage({
     key: "lumina-cart",
     defaultValue: [],
   });
+
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const items = links.map((link) => {
+  const filteredLinks = !user
+    ? [
+        { link: "/login", label: "Login" },
+        { link: "/register", label: "Register" },
+      ]
+    : links;
+
+  const items = filteredLinks.map((link) => {
     const isActive = location.pathname.includes(link.link);
 
     return (
@@ -41,7 +52,7 @@ export function Navbar() {
         fw={500}
         variant={isActive ? "light" : "subtle"}
       >
-        {link.label}{" "}
+        {link.label}
         {link.link === "/cart" && cartItemCount > 0 ? `(${cartItemCount})` : ""}
       </Button>
     );
@@ -65,7 +76,10 @@ export function Navbar() {
           LuminaEats
         </Text>
 
-        <Group gap={5} visibleFrom="xs">
+        <Group gap={10} visibleFrom="xs">
+          <Text c="luminaYellow.3">
+            {user ? `Welcome back, ${user.name.split(" ")[0]}!` : null}
+          </Text>
           {items}
         </Group>
 
@@ -93,4 +107,6 @@ export function Navbar() {
       </Drawer>
     </header>
   );
-}
+};
+
+export default Navbar;

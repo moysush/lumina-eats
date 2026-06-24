@@ -15,10 +15,14 @@ import { useNavigate } from "react-router-dom";
 import { createOrder } from "../services/orders";
 import { generatePaymentHash } from "../services/payment";
 
-export function Cart() {
+const Cart = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const merchantId = import.meta.env.VITE_PAYHERE_MERCHANT_ID;
+  const [user] = useLocalStorage({
+    key: "user",
+    defaultValue: null,
+  });
 
   const [cart, setCart] = useLocalStorage({
     key: "lumina-cart",
@@ -35,6 +39,11 @@ export function Cart() {
   };
 
   const handleCheckout = async () => {
+    if (!user) {
+      alert("Please log in to checkout!");
+      return;
+    }
+
     if (cart.length === 0) return;
     setIsSubmitting(true);
 
@@ -50,16 +59,8 @@ export function Cart() {
       const generatedHash = await generatePaymentHash(
         dbOrder._id,
         cartTotal,
-        "LKR",
+        "USD",
       );
-
-      console.log("Sending to PayHere:", {
-        merchant_id: merchantId, // IF THIS IS UNDEFINED, IT WILL FAIL
-        order_id: dbOrder._id,
-        amount: cartTotal.toFixed(2),
-        currency: "LKR",
-        hash: generatedHash,
-      });
 
       window.payhere.onCompleted = () => {
         setCart([]);
@@ -70,7 +71,7 @@ export function Cart() {
 
       window.payhere.startPayment({
         sandbox: true,
-        merchant_id: "1236490",
+        merchant_id: merchantId,
         return_url: "http://localhost:5173/menu",
         cancel_url: "http://localhost:5173/cart",
         notify_url:
@@ -78,15 +79,15 @@ export function Cart() {
         order_id: dbOrder._id,
         items: "LuminaEats Order",
         amount: cartTotal.toFixed(2),
-        currency: "LKR",
+        currency: "USD",
         hash: generatedHash,
-        first_name: "John",
-        last_name: "Doe",
-        email: "test@test.com",
-        phone: "01700000000",
-        address: "Dhaka",
-        city: "Dhaka",
-        country: "Bangladesh",
+        first_name: user.name,
+        last_name: "",
+        email: user.email,
+        phone: user.phone,
+        address: "",
+        city: "",
+        country: "",
       });
     } catch (error) {
       alert("Failed to place order.");
@@ -96,7 +97,7 @@ export function Cart() {
   };
 
   return (
-    <Container size="sm" py="xl">
+    <Container size={"sm"}>
       <Group mb="xl">
         <Button variant="subtle" onClick={() => navigate("/menu")} p={5}>
           ← Back to Menu
@@ -172,4 +173,6 @@ export function Cart() {
       </Paper>
     </Container>
   );
-}
+};
+
+export default Cart;
