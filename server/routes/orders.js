@@ -49,6 +49,7 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
+// todo: implement a my-orders in the client side
 router.get("/my-orders", verifyToken, async (req, res) => {
   try {
     const orders = await Order.find({ customer: req.user.id }).populate(
@@ -68,8 +69,7 @@ router.get("/", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const orders = await Order.find()
       .populate("items.foodItem", "name price")
-      .sort({ createdAt: -1 }); // Newest orders first
-
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
     console.error("Error fetching all orders: ", err);

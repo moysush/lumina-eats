@@ -10,7 +10,6 @@ import FoodItemPage from "./pages/admin/FoodItemPage";
 import FoodMenu from "./pages/customer/FoodMenu";
 import Cart from "./pages/customer/Cart";
 import Navbar from "./components/Navbar";
-import Logout from "./pages/Logout";
 import { Paper } from "@mantine/core";
 
 function App() {
@@ -24,7 +23,6 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/logout" element={<Logout />} />
 
             <Route path="/menu" element={<FoodMenu />} />
             <Route path="/cart" element={<Cart />} />

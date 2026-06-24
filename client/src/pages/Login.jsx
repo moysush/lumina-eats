@@ -11,6 +11,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/auth";
 import { useLocalStorage } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function Login() {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
     },
   });
-  const [, setUser] = useLocalStorage({
+  const [user, setUser] = useLocalStorage({
     key: "user",
     defaultValue: null,
   });
@@ -30,11 +31,20 @@ export default function Login() {
       const data = await login(values);
       setUser(data.user);
 
-      // Redirect based on role
+      notifications.show({
+        title: "Welcome back!",
+        message: `Successfully logged in as ${data.user.name}.`,
+        color: "green",
+      });
+
       if (data.user.role === "admin") navigate("/admin");
       else navigate("/");
     } catch (err) {
-      alert("Login failed: " + err);
+      notifications.show({
+        title: "Login failed",
+        message: "Invalid email or password.",
+        color: "red",
+      });
     }
   };
 

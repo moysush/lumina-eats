@@ -14,10 +14,15 @@ import {
 } from "@mantine/core";
 import { getFood } from "../../services/food";
 import { useLocalStorage } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 
 const FoodMenu = () => {
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [user] = useLocalStorage({
+    key: "user",
+    defaultValue: null,
+  });
   const [cart, setCart] = useLocalStorage({
     key: "lumina-cart",
     defaultValue: [],
@@ -39,6 +44,15 @@ const FoodMenu = () => {
   }, []);
 
   const handleAddToCart = (foodItem) => {
+    if (!user) {
+      notifications.show({
+        title: "Action Required",
+        message: "Please log in to add items to your cart.",
+        color: "orange",
+      });
+      return;
+    }
+
     setCart((currentCart) => {
       const existingItem = currentCart.find(
         (item) => item._id === foodItem._id,
@@ -54,6 +68,12 @@ const FoodMenu = () => {
 
       return [...currentCart, { ...foodItem, quantity: 1 }];
     });
+
+    notifications.show({
+      title: "Added to Cart",
+      message: `${foodItem.name} has been added.`,
+      color: "green",
+    });
   };
 
   if (loading) {
@@ -66,35 +86,50 @@ const FoodMenu = () => {
 
   return (
     <Container>
-      <Title order={2} mb="xl" ta="center">
+      <Title order={1} mb="xl" ta="center">
         Our Menu
       </Title>
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
         {foods.map((item) => (
-          <Card key={item._id} shadow="sm" padding="lg" radius="md" withBorder>
+          <Card
+            key={item._id}
+            h="100%"
+            shadow="sm"
+            padding="lg"
+            radius="md"
+            withBorder
+          >
             <Card.Section>
               <Image
                 src={
                   item.imageUrl ||
-                  "https://placehold.co/600x400?text=Food+Image"
+                  `https://placehold.co/600x400?text=${encodeURIComponent(item.name)}`
                 }
                 height={160}
                 alt={item.name}
               />
             </Card.Section>
 
-            <Group justify="space-between" mt="md" mb="xs">
-              <Text fw={500}>{item.name}</Text>
+            <Group mt="md" mb="xs" align="baseline">
+              <Text fw={500} flex={1}>
+                {item.name}
+              </Text>
               <Badge variant="light">${item.price}</Badge>
             </Group>
 
-            <Text size="sm" c="dimmed" lineClamp={3}>
+            <Text size="sm" c="dimmed" lineClamp={3} mb="md">
               {item.description}
             </Text>
 
-            <Button mt="md" onClick={() => handleAddToCart(item)}>
-              Add to Cart
-            </Button>
+            {item.isAvailable ? (
+              <Button mt="auto" onClick={() => handleAddToCart(item)}>
+                Add to Cart
+              </Button>
+            ) : (
+              <Button mt="auto" color="red" variant="light" disabled>
+                Out of Stock
+              </Button>
+            )}
           </Card>
         ))}
       </SimpleGrid>

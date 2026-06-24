@@ -14,6 +14,7 @@ import { useLocalStorage } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { createOrder } from "../../services/orders";
 import { generatePaymentHash } from "../../services/payment";
+import { notifications } from "@mantine/notifications";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -35,12 +36,24 @@ const Cart = () => {
   );
 
   const removeFromCart = (foodId) => {
+    const itemToRemove = cart.find((item) => item._id === foodId);
+
     setCart((currentCart) => currentCart.filter((item) => item._id !== foodId));
+
+    notifications.show({
+      title: "Removed",
+      message: `${itemToRemove?.name} removed from cart.`,
+      color: "red",
+    });
   };
 
   const handleCheckout = async () => {
     if (!user) {
-      alert("Please log in to checkout!");
+      notifications.show({
+        title: "Action Required",
+        message: "Please log in to checkout.",
+        color: "orange",
+      });
       return;
     }
 
@@ -54,7 +67,7 @@ const Cart = () => {
           quantity: item.quantity,
         })),
       });
-      console.log(dbOrder)
+      console.log(dbOrder);
 
       const generatedHash = await generatePaymentHash(
         dbOrder._id,
@@ -64,10 +77,25 @@ const Cart = () => {
 
       window.payhere.onCompleted = () => {
         setCart([]);
+        notifications.show({
+          title: "Payment Successful",
+          message: "Your order has been placed successfully!",
+          color: "green",
+        });
         navigate("/menu");
       };
-      window.payhere.onDismissed = () => alert("Payment cancelled.");
-      window.payhere.onError = (error) => alert("Payment failed: " + error);
+      window.payhere.onDismissed = () =>
+        notifications.show({
+          title: "Payment Cancelled",
+          message: "You cancelled the payment process.",
+          color: "yellow",
+        });
+      window.payhere.onError = (error) =>
+        notifications.show({
+          title: "Payment Failed",
+          message: "Something went wrong with the payment: " + error,
+          color: "red",
+        });
 
       window.payhere.startPayment({
         sandbox: true,
@@ -81,7 +109,7 @@ const Cart = () => {
         amount: cartTotal.toFixed(2),
         currency: "USD",
         hash: generatedHash,
-        first_name: user.name,
+        first_name: user?.name,
         last_name: "",
         email: user?.email,
         phone: user?.phone,
@@ -90,7 +118,11 @@ const Cart = () => {
         country: "",
       });
     } catch (error) {
-      alert("Failed to place order.");
+      notifications.show({
+        title: "Order Failed",
+        message: "Could not initiate order. Please try again.",
+        color: "red",
+      });
     } finally {
       setIsSubmitting(false);
     }

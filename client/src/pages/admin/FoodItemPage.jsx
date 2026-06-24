@@ -1,14 +1,48 @@
 import {
+  Button,
+  Group,
+  Modal,
   Paper,
   Select,
   Table,
   Textarea,
   TextInput,
   Title,
+  Text,
 } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 
-const FoodItemPage = ({ foodItems, handleFoodChange }) => {
+const FoodItemPage = ({
+  foodItems,
+  handleFoodChange,
+  handleFoodDelete,
+  handleFoodCreate,
+}) => {
+  const [opened, { open, close }] = useDisclosure(false);
+  // Food creation
+  const form = useForm({
+    initialValues: {
+      name: "",
+      description: "",
+      price: "",
+      category: "",
+      imageUrl: "",
+      isAvailable: "True",
+    },
+  });
+
+  const onSubmit = (values) => {
+    handleFoodCreate({
+      ...values,
+      isAvailable: values.isAvailable === "True",
+    });
+    close();
+    form.reset();
+  };
+
+  // Food item rows
   const foodItemRows = foodItems.map((item) => (
     <Table.Tr key={item._id}>
       <Table.Td>#{item._id.slice(-6)}</Table.Td>
@@ -36,7 +70,7 @@ const FoodItemPage = ({ foodItems, handleFoodChange }) => {
           aria-label="Update Food Description"
         />
       </Table.Td>
-      <Table.Td miw={130}>
+      <Table.Td miw={100}>
         <TextInput
           defaultValue={item.price}
           onBlur={(e) => {
@@ -83,28 +117,102 @@ const FoodItemPage = ({ foodItems, handleFoodChange }) => {
           aria-label="Update Food Availability"
         />
       </Table.Td>
+      <Table.Td>
+        <Button
+          color="red"
+          variant="light"
+          onClick={(e) => {
+            if (
+              window.confirm(`Are you sure you want to delete the ${item.name}`)
+            ) {
+              handleFoodDelete(item._id);
+            }
+          }}
+          aria-label={`Delete item ${item.name}`}
+        >
+          Delete
+        </Button>
+      </Table.Td>
     </Table.Tr>
   ));
 
   return (
     <Paper>
-      <Title order={2} mb="lg">
-        Food items
-      </Title>
-      <Table withTableBorder withColumnBorders striped highlightOnHover>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Food Item ID</Table.Th>
-            <Table.Th>Name</Table.Th>
-            <Table.Th>Description</Table.Th>
-            <Table.Th>Price</Table.Th>
-            <Table.Th>Category</Table.Th>
-            <Table.Th>Image Url</Table.Th>
-            <Table.Th>Available</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{foodItemRows}</Table.Tbody>
-      </Table>
+      <Group justify="space-between" mb="lg">
+        <Title order={3}>Food items</Title>
+        <Button onClick={open}>+ New Food</Button>
+      </Group>
+      <Table.ScrollContainer type="native">
+        <Table withTableBorder withColumnBorders striped highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Food Item ID</Table.Th>
+              <Table.Th>Name</Table.Th>
+              <Table.Th>Description</Table.Th>
+              <Table.Th>Price</Table.Th>
+              <Table.Th>Category</Table.Th>
+              <Table.Th>Image Url</Table.Th>
+              <Table.Th>Available</Table.Th>
+              <Table.Th>Actions</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>{foodItemRows}</Table.Tbody>
+        </Table>
+      </Table.ScrollContainer>
+
+      <Modal
+        opened={opened}
+        onClose={close}
+        title={<Text fw={700}>Add New Dish</Text>}
+        centered
+      >
+        <form onSubmit={form.onSubmit(onSubmit)}>
+          <TextInput
+            label="Name"
+            placeholder="e.g., Spicy Chicken Burger"
+            required
+            mb="sm"
+            {...form.getInputProps("name")}
+          />
+          <Textarea
+            label="Description"
+            placeholder="Brief description of the dish"
+            mb="sm"
+            {...form.getInputProps("description")}
+          />
+          <Group grow mb="sm">
+            <TextInput
+              label="Price"
+              placeholder="0.00"
+              required
+              type="number"
+              step="0.01"
+              {...form.getInputProps("price")}
+            />
+            <TextInput
+              label="Category"
+              placeholder="e.g., Burger"
+              required
+              {...form.getInputProps("category")}
+            />
+          </Group>
+          <TextInput
+            label="Image URL"
+            placeholder="https://..."
+            mb="md"
+            {...form.getInputProps("imageUrl")}
+          />
+          <Select
+            label="Availability"
+            data={["True", "False"]}
+            mb="xl"
+            {...form.getInputProps("isAvailable")}
+          />
+          <Button fullWidth type="submit">
+            Create Food Item
+          </Button>
+        </form>
+      </Modal>
     </Paper>
   );
 };

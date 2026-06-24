@@ -10,19 +10,34 @@ import {
 } from "@mantine/core";
 import { useDisclosure, useLocalStorage } from "@mantine/hooks";
 import { useNavigate, useLocation } from "react-router-dom";
+import { logout } from "../services/auth";
+import { notifications } from "@mantine/notifications";
 
 const Navbar = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [user] = useLocalStorage({
+  const [user, , removeUser] = useLocalStorage({
     key: "user",
     defaultValue: null,
   });
-  const [cart] = useLocalStorage({
+  const [cart, , removeCart] = useLocalStorage({
     key: "lumina-cart",
     defaultValue: [],
   });
+
+  const handleLogout = () => {
+    logout();
+    removeUser();
+    removeCart();
+    navigate("/");
+
+    notifications.show({
+      title: "Logged out",
+      message: "You have been successfully logged out.",
+      color: "yellow",
+    });
+  };
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -55,7 +70,11 @@ const Navbar = () => {
       <Button
         key={link.label}
         onClick={() => {
-          navigate(link.link);
+          if (link.label === "Logout") {
+            handleLogout();
+          } else {
+            navigate(link.link);
+          }
           close();
         }}
         fw={500}
@@ -85,9 +104,9 @@ const Navbar = () => {
           LuminaEats
         </Text>
 
-        <Group gap={10} visibleFrom="xs">
-          <Text c="luminaYellow.3">
-            {user ? `Welcome back, ${user.name.split(" ")[0]}!` : null}
+        <Group gap={3} visibleFrom="sm">
+          <Text c="luminaYellow.4" mr={8}>
+            {user ? `Hello, ${user.name.split(" ")[0]}!` : null}
           </Text>
           {items}
         </Group>
@@ -95,7 +114,7 @@ const Navbar = () => {
         <Burger
           opened={opened}
           onClick={toggle}
-          hiddenFrom="xs"
+          hiddenFrom="sm"
           size="sm"
           aria-label="Toggle navigation"
         />
@@ -104,10 +123,10 @@ const Navbar = () => {
       <Drawer
         opened={opened}
         onClose={close}
-        size="sm"
+        size="xs"
         padding="md"
         title={<Text fw={700}>Navigation</Text>}
-        hiddenFrom="xs"
+        hiddenFrom="md"
         zIndex={1000000}
       >
         <Stack gap="sm" mt="md">

@@ -22,21 +22,23 @@ const OrderPage = ({ orders, handleStatusChange }) => {
 
   return (
     <Paper>
-      <Title order={2} mb="lg">
+      <Title order={3} mb="lg">
         Order Details
       </Title>
-      <Table withTableBorder withColumnBorders striped highlightOnHover>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Order ID</Table.Th>
-            <Table.Th>Total Amount</Table.Th>
-            <Table.Th>Order Status</Table.Th>
-            <Table.Th>Payment Status</Table.Th>
-            <Table.Th>Date</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{orderRows}</Table.Tbody>
-      </Table>
+      <Table.ScrollContainer type="native">
+        <Table withTableBorder withColumnBorders striped highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Order ID</Table.Th>
+              <Table.Th>Total Amount</Table.Th>
+              <Table.Th>Order Status</Table.Th>
+              <Table.Th>Payment Status</Table.Th>
+              <Table.Th>Date</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>{orderRows}</Table.Tbody>
+        </Table>
+      </Table.ScrollContainer>
     </Paper>
   );
 };

@@ -9,6 +9,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/auth";
+import { notifications } from "@mantine/notifications";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -33,9 +34,26 @@ export default function Register() {
   });
 
   const handleSubmit = async (values) => {
-    const { confirmPassword, ...dataToSend } = values;
-    await register(dataToSend);
-    navigate("/login");
+    try {
+      const { confirmPassword, ...dataToSend } = values;
+      await register(dataToSend);
+
+      notifications.show({
+        title: "Account Created",
+        message: "Your account has been successfully created. Please log in.",
+        color: "green",
+      });
+
+      navigate("/login");
+    } catch (err) {
+      notifications.show({
+        title: "Registration failed",
+        message:
+          err.response?.data?.message ||
+          "Something went wrong. Please try again.",
+        color: "red",
+      });
+    }
   };
 
   return (
