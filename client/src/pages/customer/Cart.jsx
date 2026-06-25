@@ -68,7 +68,6 @@ const Cart = () => {
           quantity: item.quantity,
         })),
       });
-      console.log(dbOrder);
 
       const generatedHash = await generatePaymentHash(
         dbOrder._id,
