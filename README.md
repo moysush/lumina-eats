@@ -77,7 +77,7 @@ Designed with clean UI principles and stable state management, this project fulf
     # Client / Frontend Configuration
     VITE_PAYHERE_MERCHANT_ID=your_merchant_id
     VITE_PAYHERE_NOTIFY_URL=your_public_backend_url/api/payment/webhook
-  ```
+    ```
 
 4. **Start the Application**
    Run this in both the client and server directories.
